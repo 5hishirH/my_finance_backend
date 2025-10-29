@@ -1,0 +1,115 @@
+# ======================
+# Django / Python
+# ======================
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environment
+venv/
+ENV/
+env/
+.venv/
+
+# Django stuff:
+*.log
+*.pot
+*.pyc
+*.pyo
+*.pyd
+db.sqlite3
+*.sqlite3
+media/
+staticfiles/
+static/
+*.mo
+
+# Django cache
+*.cache
+*.log.*
+
+# ======================
+# Environment / Secrets
+# ======================
+.env
+*.env
+!env.example
+
+# ======================
+# VSCode / IDEs / Editors
+# ======================
+.vscode/
+.idea/
+*.swp
+*.swo
+*.bak
+
+# ======================
+# System / OS
+# ======================
+.DS_Store
+Thumbs.db
+ehthumbs.db
+Icon?
+desktop.ini
+
+# ======================
+# Migrations (optional, if auto-generated in CI)
+# Uncomment if you prefer to ignore migrations
+# **/migrations/*.py
+# !**/migrations/__init__.py
+
+# ======================
+# Byte-compiled / Packages
+# ======================
+*.egg
+*.egg-info/
+dist/
+build/
+.eggs/
+
+# ======================
+# pytest / coverage / testing
+# ======================
+.coverage
+coverage.xml
+htmlcov/
+.tox/
+.pytest_cache/
+.cache/
+.nox/
+
+# ======================
+# Docker / Compose
+# ======================
+*.pid
+*.seed
+*.pid.lock
+docker-compose.override.yml
+docker-compose*.log
+volumes/
+pgdata/
+*.tar
+*.tar.gz
+
+# ======================
+# Editor backup / temp
+# ======================
+*~
+*.tmp
+*.temp
+
+# ======================
+# MyPy / Linting
+# ======================
+.mypy_cache/
+.pyre/
+.dmypy.json
+.pytype/
+ruff_cache/
+
+# ======================
+# Jupyter / notebooks (if used)
+# ======================
+.ipynb_checkpoints
+*.ipynb
