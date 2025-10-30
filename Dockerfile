@@ -1,35 +1,78 @@
-# A lightweight Python base image
-FROM python:3.13-slim
+# --- Stage 1: The Builder ---
+# This stage installs build-time dependencies and Python packages
+FROM python:3.13-slim AS builder
 
-# Set working directory
 WORKDIR /app
 
-# Install system dependencies
-RUN apt-get update && apt-get install -y \
-    libpq-dev gcc && \
-    rm -rf /var/lib/apt/lists/*
+# Install build-time system dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    libpq-dev \
+    gcc \
+    && rm -rf /var/lib/apt/lists/*
 
-# Copy dependency files first (for better caching)
 COPY requirements.txt .
 
-# Install Python dependencies
+# Install Python dependencies into a virtual environment
+RUN python -m venv /opt/venv
+ENV PATH="/opt/venv/bin:$PATH"
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Remove build tools to reduce image size
-RUN apt-get purge -y gcc && apt-get autoremove -y
 
-# Copy project files
+# --- Stage 2: The Final Image ---
+# This stage builds the final, lightweight image for production
+FROM python:3.13-slim
+
+WORKDIR /app
+
+# Install *runtime* system dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    libpq5 \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copy the virtual environment from the builder stage
+COPY --from=builder /opt/venv /opt/venv
+
+# Set the venv path
+ENV PATH="/opt/venv/bin:$PATH"
+
+# Copy the rest of the project files
 COPY . .
 
-# Set environment variables
-ENV PYTHONUNBUFFERED=1
-ENV DJANGO_SETTINGS_MODULE=my_finance_backend.settings.production
+# --- This is the key section for handling secrets ---
 
-# Collect static files
+# 1. Declare ARGs that will be passed from the 'docker build' command.
+ARG SECRET_KEY
+ARG DJANGO_SETTINGS_MODULE="my_finance_backend.settings.production"
+ARG DEBUG="False"
+
+# New individual database credentials
+ARG DB_NAME
+ARG DB_USER
+ARG DB_PASSWORD
+ARG DB_HOST
+ARG DB_PORT="5432"
+
+# 2. Set the ENV variables from the ARGs.
+ENV SECRET_KEY=${SECRET_KEY}
+ENV DJANGO_SETTINGS_MODULE=${DJANGO_SETTINGS_MODULE}
+ENV DEBUG=${DEBUG}
+
+# Set environment variables for the new database configuration
+ENV DB_NAME=${DB_NAME}
+ENV DB_USER=${DB_USER}
+ENV DB_PASSWORD=${DB_PASSWORD}
+ENV DB_HOST=${DB_HOST}
+ENV DB_PORT=${DB_PORT}
+
+ENV PYTHONUNBUFFERED=1
+
+# --- End of key section ---
+
+# Run collectstatic (this build step requires the ENV vars above to be set)
 RUN python manage.py collectstatic --noinput
 
-# Expose port
+# Expose the port
 EXPOSE 8000
 
-# Run Django with Gunicorn
+# Set the correct CMD (using exec form)
 CMD ["gunicorn", "my_finance_backend.wsgi:application", "--bind", "0.0.0.0:8000"]
