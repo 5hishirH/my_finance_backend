@@ -1,0 +1,40 @@
+# Git
+
+.git
+.gitignore
+
+# Docker
+
+Dockerfile
+.dockerignore
+docker-compose.yml
+
+# Python
+
+pycache/
+*.pyc
+*.pyo
+.venv/
+venv/
+env/
+
+# IDE & OS files
+
+.idea/
+.vscode/
+.DS_Store
+
+# Static and media files (if served locally)
+
+/staticfiles
+/mediafiles
+
+# Documentation
+
+docs/
+README.md
+
+# Local settings
+
+.env
+*.env
